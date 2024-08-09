@@ -1,0 +1,39 @@
+spring:
+  profiles:
+    active: ${cartServiceAppProfile}
+  application:
+    name: Cart-Service
+redis:
+  host: ${redisHost}
+  port: ${redisPort}
+  database: ${redisDatabase}
+server:
+  servlet:
+    context-path: /cart_service
+  port: ${cartServiceAppPort}
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  circuitbreaker:
+    instances:
+      catalogServiceBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 5
+        minimumNumberOfCalls: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 180s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+        ignoreExceptions:
+          - dev.lokeshbisht.CartService.exceptions.CartNotFoundException
